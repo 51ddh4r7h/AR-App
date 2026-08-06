@@ -1,0 +1,36 @@
+import type { CampusNode } from '../navigation/graph'
+
+interface DestinationPickerProps {
+  destinations: CampusNode[]
+  selectedId: string
+  onSelect: (destinationId: string) => void
+  onStart: () => void
+}
+
+export function DestinationPicker({
+  destinations,
+  selectedId,
+  onSelect,
+  onStart,
+}: DestinationPickerProps) {
+  return (
+    <section className="destination-card">
+      <label htmlFor="destination-select">Choose destination</label>
+      <select
+        id="destination-select"
+        value={selectedId}
+        onChange={(event) => onSelect(event.target.value)}
+      >
+        {destinations.map((destination) => (
+          <option key={destination.id} value={destination.id}>
+            {destination.name}
+          </option>
+        ))}
+      </select>
+      <button type="button" onClick={onStart}>
+        Start Navigation
+      </button>
+    </section>
+  )
+}
+

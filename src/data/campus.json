@@ -1,0 +1,66 @@
+{
+  "nodes": [
+    {
+      "id": "sidtm",
+      "name": "SIDTM",
+      "latitude": 18.537266,
+      "longitude": 73.73197,
+      "description": "Symbiosis Institute of Digital and Telecom Management.",
+      "openHours": "24 Hours",
+      "highlights": ["Main landmark", "Academic support"]
+    },
+    {
+      "id": "symbi-eats",
+      "name": "Symbi Eats",
+      "latitude": 18.537469822677274,
+      "longitude": 73.73228692972246,
+      "description": "Campus dining point.",
+      "openHours": "8 AM – 10 PM",
+      "highlights": ["Hot meals", "Snacks"]
+    },
+    {
+      "id": "library",
+      "name": "Library",
+      "latitude": 18.536904006835087,
+      "longitude": 73.73257205422341,
+      "description": "Quiet study zone with printing and Wi-Fi.",
+      "openHours": "9 AM – 8 PM",
+      "highlights": ["Wi-Fi available", "Printing available"]
+    },
+    {
+      "id": "auditorium",
+      "name": "Auditorium",
+      "latitude": 18.53679933407802,
+      "longitude": 73.73255101708655,
+      "description": "Events, seminars and orientation sessions.",
+      "openHours": "9 AM – 7 PM",
+      "highlights": ["Stage", "AV system"]
+    },
+    {
+      "id": "fountain",
+      "name": "Fountain",
+      "latitude": 18.536238631339838,
+      "longitude": 73.7330154022884,
+      "description": "Central open-space landmark.",
+      "openHours": "Open Area",
+      "highlights": ["Meet-up point", "Visible landmark"]
+    },
+    {
+      "id": "aqua-point",
+      "name": "Aqua Point",
+      "latitude": 18.53579473949669,
+      "longitude": 73.73335541761915,
+      "description": "Hydration/water point near student path.",
+      "openHours": "All day",
+      "highlights": ["Water access", "Quick stop"]
+    }
+  ],
+  "edges": [
+    { "from": "sidtm", "to": "symbi-eats" },
+    { "from": "symbi-eats", "to": "library" },
+    { "from": "library", "to": "auditorium" },
+    { "from": "auditorium", "to": "fountain" },
+    { "from": "fountain", "to": "aqua-point" },
+    { "from": "library", "to": "fountain" }
+  ]
+}
