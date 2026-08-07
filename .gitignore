@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# 8th Wall engine binary (copied from node_modules by scripts/copy-eighthwall.mjs)
+public/external/xr/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

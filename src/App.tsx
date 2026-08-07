@@ -5,6 +5,7 @@ import { InfoPopup } from './components/InfoPopup'
 import { NavigationHUD } from './components/NavigationHUD'
 import { PermissionScreen } from './components/PermissionScreen'
 import { startCameraStream, stopCameraStream } from './ar/camera'
+import { EighthWallAR } from './ar/eighthwall'
 import { ARRenderer } from './ar/renderer'
 import { buildCampusGraph, type CampusNode } from './navigation/graph'
 import { GpsService, type GpsReading } from './navigation/gps'
@@ -53,6 +54,10 @@ const getProximityLabel = (
 }
 
 function App() {
+  const xr8Enabled = useMemo(
+    () => new URLSearchParams(window.location.search).has('xr8'),
+    [],
+  )
   const graph = useMemo(() => buildCampusGraph(), [])
   const destinations = useMemo(() => Array.from(graph.nodes.values()), [graph.nodes])
   const [cameraPermission, setCameraPermission] = useState<PermissionState>('prompt')
@@ -78,7 +83,9 @@ function App() {
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
+  const xrCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const arRendererRef = useRef<ARRenderer | null>(null)
+  const eighthWallRef = useRef<EighthWallAR | null>(null)
   const gpsServiceRef = useRef<GpsService | null>(null)
   const headingServiceRef = useRef<HeadingService | null>(null)
   const previousDistanceRef = useRef<number | null>(null)
@@ -119,6 +126,26 @@ function App() {
   useEffect(() => () => stopCameraStream(cameraStream), [cameraStream])
 
   useEffect(() => {
+    if (!xr8Enabled || !allPermissionsGranted || !activeDestinationId) {
+      return
+    }
+    const canvas = xrCanvasRef.current
+    if (!canvas || eighthWallRef.current) {
+      return
+    }
+    const engine = new EighthWallAR(canvas, {
+      onReady: () => setRouteError(null),
+      onError: (message) => setRouteError(`8th Wall error: ${message}`),
+    })
+    eighthWallRef.current = engine
+    engine.start()
+    return () => {
+      engine.stop()
+      eighthWallRef.current = null
+    }
+  }, [xr8Enabled, allPermissionsGranted, activeDestinationId])
+
+  useEffect(() => {
     if (!allPermissionsGranted || !activeDestinationId || !position) {
       return
     }
@@ -156,6 +183,7 @@ function App() {
       setRoutePath(null)
       setAnnouncement(`You have arrived at ${destination.name}.`)
       arRendererRef.current?.clearNavigation()
+      eighthWallRef.current?.clear()
       return
     }
 
@@ -164,6 +192,14 @@ function App() {
     setTurnInstruction(getTurnInstruction(nextRelativeBearing))
     setProximityLabel(getProximityLabel(distanceToDestination, deltaFromPrevious))
     arRendererRef.current?.setNavigationDirection(nextRelativeBearing, distanceToDestination)
+    eighthWallRef.current?.updateNavigation({
+      destinationId: activeDestinationId,
+      userPosition: position,
+      destination,
+      heading,
+      relativeBearing: nextRelativeBearing,
+      distanceMeters: distanceToDestination,
+    })
   }, [activeDestinationId, allPermissionsGranted, graph, heading, position])
 
   useEffect(() => {
@@ -181,6 +217,11 @@ function App() {
   }, [activeDestinationId, distanceMeters, turnInstruction, proximityLabel])
 
   const requestCameraPermission = async (): Promise<void> => {
+    if (xr8Enabled) {
+      setCameraPermission('granted')
+      setRouteError(null)
+      return
+    }
     try {
       const stream = await startCameraStream()
       setCameraStream(stream)
@@ -268,8 +309,14 @@ function App() {
 
   return (
     <main className="app-shell">
-      <video ref={videoRef} className="camera-feed" playsInline muted />
-      <canvas ref={canvasRef} className="ar-canvas" />
+      {xr8Enabled ? (
+        <canvas ref={xrCanvasRef} className="camera-feed ar-canvas" />
+      ) : (
+        <>
+          <video ref={videoRef} className="camera-feed" playsInline muted />
+          <canvas ref={canvasRef} className="ar-canvas" />
+        </>
+      )}
       <div className="overlay">
         {!allPermissionsGranted ? (
           <PermissionScreen
@@ -297,6 +344,7 @@ function App() {
               }
               setActiveDestinationId(selectedDestinationId)
               setArrivedNodeId(null)
+              eighthWallRef.current?.clear()
               setNextWaypointName('Computing route...')
               setDistanceMeters(0)
               setRoutePath(null)
