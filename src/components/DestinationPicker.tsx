@@ -36,7 +36,7 @@ export function DestinationPicker({
   const selected = destinations.find((destination) => destination.id === selectedId) ?? null
 
   return (
-    <Card className="w-[min(92vw,420px)] m-auto border-white/10 bg-slate-950/70 text-white shadow-2xl backdrop-blur-xl">
+    <Card className="pointer-events-auto w-[min(92vw,420px)] m-auto border-white/10 bg-slate-950/70 text-white shadow-2xl backdrop-blur-xl">
       <CardHeader>
         <CardTitle className="text-lg">Where to?</CardTitle>
         <CardDescription>
