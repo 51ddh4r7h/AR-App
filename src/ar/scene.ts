@@ -19,6 +19,6 @@ export const createARScene = (): ARScene => {
 
   const camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100)
   camera.position.set(0, 1.6, 0)
+  scene.add(camera)
   return { scene, camera }
 }
-

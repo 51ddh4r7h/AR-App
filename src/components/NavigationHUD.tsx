@@ -1,3 +1,5 @@
+import { PrecisionCompass } from './PrecisionCompass'
+
 interface NavigationHUDProps {
   destinationName: string
   nextWaypointName: string
@@ -6,6 +8,9 @@ interface NavigationHUDProps {
   gpsAccuracy: number
   weakGps: boolean
   routeMode: 'graph' | 'direct'
+  relativeBearing: number
+  turnInstruction: string
+  proximityLabel: string
 }
 
 export function NavigationHUD({
@@ -16,6 +21,9 @@ export function NavigationHUD({
   gpsAccuracy,
   weakGps,
   routeMode,
+  relativeBearing,
+  turnInstruction,
+  proximityLabel,
 }: NavigationHUDProps) {
   return (
     <>
@@ -24,10 +32,18 @@ export function NavigationHUD({
         <p>Next: {nextWaypointName}</p>
       </header>
 
+      <PrecisionCompass
+        relativeBearing={relativeBearing}
+        distanceMeters={distanceMeters}
+        heading={heading}
+        turnInstruction={turnInstruction}
+        proximityLabel={proximityLabel}
+      />
+
       <footer className="bottom-hud">
-        <p>{Math.max(0, Math.round(distanceMeters))}m remaining</p>
         <p>Heading: {Math.round(heading)}°</p>
         <p>GPS ±{Math.round(gpsAccuracy)}m</p>
+        <p>{routeMode === 'graph' ? 'Path: graph' : 'Direct bearing'}</p>
       </footer>
 
       {routeMode === 'direct' ? (

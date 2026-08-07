@@ -14,6 +14,43 @@ import { bearingBetween, haversineDistance } from './utils/geo'
 import { normalizeAngle } from './utils/math'
 
 const REACHED_THRESHOLD_METERS = 14
+const STRAIGHT_AHEAD_THRESHOLD = 12
+
+const getTurnInstruction = (relativeBearing: number): string => {
+  const magnitude = Math.abs(relativeBearing)
+  if (magnitude <= STRAIGHT_AHEAD_THRESHOLD) {
+    return 'Go straight'
+  }
+  if (magnitude <= 45) {
+    return relativeBearing < 0 ? 'Slight left' : 'Slight right'
+  }
+  if (magnitude <= 120) {
+    return relativeBearing < 0 ? 'Turn left' : 'Turn right'
+  }
+  return 'Turn around'
+}
+
+const getProximityLabel = (
+  distanceMeters: number,
+  deltaFromPrevious: number | null,
+): string => {
+  if (distanceMeters <= 20) {
+    return 'Very close'
+  }
+  if (distanceMeters <= 50) {
+    return 'Close'
+  }
+  if (deltaFromPrevious === null) {
+    return 'Hold heading'
+  }
+  if (deltaFromPrevious >= 1.5) {
+    return 'Getting closer'
+  }
+  if (deltaFromPrevious <= -1.5) {
+    return 'Moving away'
+  }
+  return 'Hold heading'
+}
 
 function App() {
   const graph = useMemo(() => buildCampusGraph(), [])
@@ -30,6 +67,9 @@ function App() {
   const [nextWaypointName, setNextWaypointName] = useState('Waiting for route...')
   const [distanceMeters, setDistanceMeters] = useState(0)
   const [routeMode, setRouteMode] = useState<'graph' | 'direct'>('graph')
+  const [relativeBearing, setRelativeBearing] = useState(0)
+  const [turnInstruction, setTurnInstruction] = useState('Go straight')
+  const [proximityLabel, setProximityLabel] = useState('Hold heading')
   const [routeError, setRouteError] = useState<string | null>(null)
   const [arrivedNodeId, setArrivedNodeId] = useState<string | null>(null)
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null)
@@ -39,6 +79,7 @@ function App() {
   const arRendererRef = useRef<ARRenderer | null>(null)
   const gpsServiceRef = useRef<GpsService | null>(null)
   const headingServiceRef = useRef<HeadingService | null>(null)
+  const previousDistanceRef = useRef<number | null>(null)
 
   const weakGps = (position?.accuracy ?? Number.POSITIVE_INFINITY) > 20
   const allPermissionsGranted =
@@ -89,6 +130,12 @@ function App() {
     const nextBearing = route?.nextBearing ?? bearingBetween(position, destination)
     const nextName = route?.nextNode?.name ?? destination.name
 
+    const deltaFromPrevious =
+      previousDistanceRef.current === null
+        ? null
+        : previousDistanceRef.current - distanceToDestination
+    previousDistanceRef.current = distanceToDestination
+
     setDistanceMeters(distanceToDestination)
     setNextWaypointName(nextName)
     setRouteMode(route ? 'graph' : 'direct')
@@ -106,8 +153,11 @@ function App() {
       return
     }
 
-    const relativeBearing = normalizeAngle(nextBearing - heading)
-    arRendererRef.current?.setNavigationDirection(relativeBearing, distanceToDestination)
+    const nextRelativeBearing = normalizeAngle(nextBearing - heading)
+    setRelativeBearing(nextRelativeBearing)
+    setTurnInstruction(getTurnInstruction(nextRelativeBearing))
+    setProximityLabel(getProximityLabel(distanceToDestination, deltaFromPrevious))
+    arRendererRef.current?.setNavigationDirection(nextRelativeBearing, distanceToDestination)
   }, [activeDestinationId, allPermissionsGranted, graph, heading, position])
 
   const requestCameraPermission = async (): Promise<void> => {
@@ -227,6 +277,10 @@ function App() {
               setArrivedNodeId(null)
               setNextWaypointName('Computing route...')
               setDistanceMeters(0)
+              setRelativeBearing(0)
+              setTurnInstruction('Go straight')
+              setProximityLabel('Hold heading')
+              previousDistanceRef.current = null
               setRouteMode('graph')
               setRouteError(null)
             }}
@@ -242,6 +296,9 @@ function App() {
             gpsAccuracy={position?.accuracy ?? 0}
             weakGps={weakGps}
             routeMode={routeMode}
+            relativeBearing={relativeBearing}
+            turnInstruction={turnInstruction}
+            proximityLabel={proximityLabel}
           />
         ) : null}
 

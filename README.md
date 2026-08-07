@@ -18,7 +18,7 @@ Open the local URL on your phone (same Wi-Fi), allow camera + location + motion 
 - Motion/compass heading smoothing
 - A* pathfinding on static campus graph
 - Dynamic waypoint updates every second
-- 2-3 meter ahead AR arrows (max 3 visible)
+- AirTag-style precision compass: rotating needle always points toward the destination, with live distance readout and proximity feedback (pulse speed + color) as you close in
 - Destination info popup on arrival
 
 ## Update Campus Coordinates
