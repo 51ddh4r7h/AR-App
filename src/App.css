@@ -33,102 +33,13 @@
   pointer-events: none;
 }
 
-.permission-card,
-.destination-card,
-.top-hud,
-.bottom-hud,
-.warning-banner,
-.error-banner,
-.info-popup {
-  pointer-events: auto;
-  backdrop-filter: blur(14px);
-  background: rgba(15, 23, 42, 0.68);
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  box-shadow: 0 12px 32px rgba(2, 6, 23, 0.44);
-}
-
-.permission-card,
-.destination-card {
-  width: min(92vw, 420px);
-  margin: auto;
-  border-radius: 20px;
-  padding: 1.2rem;
-  animation: pop-in 220ms ease-out;
-}
-
-.permission-card h1 {
-  margin: 0 0 0.6rem;
-  font-size: 1.35rem;
-}
-
-.permission-card p {
-  margin: 0 0 0.8rem;
-}
-
-.permission-list {
-  display: grid;
-  gap: 0.6rem;
-}
-
-.permission-list button,
-.destination-card button,
-.destination-card select,
-.info-popup button {
-  width: 100%;
-  min-height: 2.8rem;
-  border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  font: inherit;
-}
-
-.permission-list button,
-.destination-card button,
-.info-popup button {
-  cursor: pointer;
-  color: #f8fafc;
-  background: linear-gradient(135deg, #0ea5e9, #7c3aed);
-}
-
-.permission-list button:disabled {
-  cursor: default;
-  opacity: 0.75;
-}
-
-.destination-card label {
-  display: block;
-  margin-bottom: 0.4rem;
-}
-
-.destination-card select {
-  margin-bottom: 0.8rem;
-  padding: 0.5rem;
-  color: #e2e8f0;
-  background: rgba(2, 6, 23, 0.6);
-}
-
-.top-hud {
-  margin: 0.8rem;
-  border-radius: 16px;
-  padding: 0.8rem 1rem;
-}
-
-.top-hud h2 {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.top-hud p {
-  margin: 0.35rem 0 0;
-  color: #bfdbfe;
-}
-
 .pf {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   pointer-events: none;
 }
 
@@ -309,29 +220,16 @@
   letter-spacing: 0.03em;
 }
 
-.bottom-hud {
-  margin: 0.8rem;
-  border-radius: 16px;
-  padding: 0.8rem 1rem;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-
-.bottom-hud p {
-  margin: 0;
-  font-size: 0.92rem;
-}
-
 .warning-banner,
 .error-banner {
+  pointer-events: auto;
   margin: 0 auto 0.8rem;
   border-radius: 12px;
   padding: 0.55rem 0.8rem;
-}
-
-.warning {
-  color: #facc15;
+  backdrop-filter: blur(14px);
+  background: rgba(15, 23, 42, 0.68);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: 0 12px 32px rgba(2, 6, 23, 0.44);
 }
 
 .warning-banner {
@@ -341,58 +239,6 @@
 .error-banner {
   color: #fecaca;
   border-color: rgba(248, 113, 113, 0.38);
-}
-
-.hint {
-  margin-top: 0.7rem;
-  color: #cbd5e1;
-  font-size: 0.9rem;
-}
-
-.info-popup {
-  position: absolute;
-  left: 50%;
-  bottom: 1rem;
-  transform: translateX(-50%);
-  width: min(92vw, 420px);
-  border-radius: 18px;
-  padding: 1rem;
-  animation: slide-up 220ms ease-out;
-}
-
-.info-popup h3 {
-  margin: 0 0 0.4rem;
-}
-
-.info-popup p {
-  margin: 0 0 0.4rem;
-}
-
-.info-popup ul {
-  margin: 0 0 0.8rem;
-  padding-left: 1rem;
-}
-
-@keyframes pop-in {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 12px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
 }
 
 .minimap-panel {
@@ -491,24 +337,6 @@
   stroke-width: 2.5;
 }
 
-.destination-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.9rem;
-}
-
-.destination-title {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-.destination-fields {
-  width: 100%;
-  display: grid;
-  gap: 0.7rem;
-}
-
 .sr-only {
   position: absolute;
   width: 1px;
@@ -525,10 +353,5 @@
   .pf-pulse {
     animation: none;
     opacity: 0.2;
-  }
-  .permission-card,
-  .destination-card,
-  .info-popup {
-    animation: none;
   }
 }

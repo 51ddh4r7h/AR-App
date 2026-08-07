@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge'
 import type { GpsReading } from '../navigation/gps'
 import type { CampusNode } from '../navigation/graph'
 import { Minimap } from './Minimap'
@@ -42,9 +43,14 @@ export function NavigationHUD({
 }: NavigationHUDProps) {
   return (
     <>
-      <header className="top-hud">
-        <h2>{destinationName}</h2>
-        <p>Next: {nextWaypointName}</p>
+      <header className="pointer-events-auto mx-3 mt-3 flex items-start justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-white shadow-xl backdrop-blur-xl">
+        <div className="min-w-0">
+          <h2 className="truncate text-base font-semibold">{destinationName}</h2>
+          <p className="truncate text-xs text-sky-200">Next: {nextWaypointName}</p>
+        </div>
+        <Badge variant="secondary" className="shrink-0">
+          {routeMode === 'graph' ? 'Path: graph' : 'Direct'}
+        </Badge>
       </header>
 
       <div className="minimap-panel">
@@ -70,10 +76,10 @@ export function NavigationHUD({
         proximityLabel={proximityLabel}
       />
 
-      <footer className="bottom-hud">
-        <p>Heading: {Math.round(heading)}°</p>
-        <p>GPS ±{Math.round(gpsAccuracy)}m</p>
-        <p>{routeMode === 'graph' ? 'Path: graph' : 'Direct bearing'}</p>
+      <footer className="pointer-events-auto mx-3 mb-3 flex items-center justify-between gap-2 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-2.5 text-xs text-slate-300 shadow-xl backdrop-blur-xl">
+        <span>Heading {Math.round(heading)}°</span>
+        <span>GPS ±{Math.round(gpsAccuracy)}m</span>
+        {weakGps ? <span className="text-amber-300">Weak GPS</span> : null}
       </footer>
 
       {routeMode === 'direct' ? (
