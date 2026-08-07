@@ -6,14 +6,14 @@ import { NavigationHUD } from './components/NavigationHUD'
 import { PermissionScreen } from './components/PermissionScreen'
 import { startCameraStream, stopCameraStream } from './ar/camera'
 import { ARRenderer } from './ar/renderer'
-import { buildCampusGraph } from './navigation/graph'
+import { buildCampusGraph, type CampusNode } from './navigation/graph'
 import { GpsService, type GpsReading } from './navigation/gps'
 import { HeadingService } from './navigation/heading'
 import { buildRoute } from './navigation/route'
 import { bearingBetween, haversineDistance } from './utils/geo'
 import { normalizeAngle } from './utils/math'
 
-const REACHED_THRESHOLD_METERS = 14
+const ARRIVAL_RADIUS_METERS = 25
 const STRAIGHT_AHEAD_THRESHOLD = 12
 
 const getTurnInstruction = (relativeBearing: number): string => {
@@ -67,9 +67,11 @@ function App() {
   const [nextWaypointName, setNextWaypointName] = useState('Waiting for route...')
   const [distanceMeters, setDistanceMeters] = useState(0)
   const [routeMode, setRouteMode] = useState<'graph' | 'direct'>('graph')
+  const [routePath, setRoutePath] = useState<CampusNode[] | null>(null)
   const [relativeBearing, setRelativeBearing] = useState(0)
   const [turnInstruction, setTurnInstruction] = useState('Go straight')
   const [proximityLabel, setProximityLabel] = useState('Hold heading')
+  const [announcement, setAnnouncement] = useState('')
   const [routeError, setRouteError] = useState<string | null>(null)
   const [arrivedNodeId, setArrivedNodeId] = useState<string | null>(null)
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null)
@@ -80,6 +82,7 @@ function App() {
   const gpsServiceRef = useRef<GpsService | null>(null)
   const headingServiceRef = useRef<HeadingService | null>(null)
   const previousDistanceRef = useRef<number | null>(null)
+  const lastAnnouncementKeyRef = useRef<string>('')
 
   const weakGps = (position?.accuracy ?? Number.POSITIVE_INFINITY) > 20
   const allPermissionsGranted =
@@ -139,6 +142,7 @@ function App() {
     setDistanceMeters(distanceToDestination)
     setNextWaypointName(nextName)
     setRouteMode(route ? 'graph' : 'direct')
+    setRoutePath(route?.path ?? null)
 
     if (!route) {
       setRouteError('Graph path unavailable. Using direct guidance.')
@@ -146,9 +150,11 @@ function App() {
       setRouteError(null)
     }
 
-    if (distanceToDestination <= REACHED_THRESHOLD_METERS) {
+    if (distanceToDestination <= ARRIVAL_RADIUS_METERS) {
       setArrivedNodeId(activeDestinationId)
       setActiveDestinationId(null)
+      setRoutePath(null)
+      setAnnouncement(`You have arrived at ${destination.name}.`)
       arRendererRef.current?.clearNavigation()
       return
     }
@@ -159,6 +165,20 @@ function App() {
     setProximityLabel(getProximityLabel(distanceToDestination, deltaFromPrevious))
     arRendererRef.current?.setNavigationDirection(nextRelativeBearing, distanceToDestination)
   }, [activeDestinationId, allPermissionsGranted, graph, heading, position])
+
+  useEffect(() => {
+    if (!activeDestinationId) {
+      return
+    }
+    const rounded = Math.round(distanceMeters / 10) * 10
+    const key = `${turnInstruction}|${rounded}|${proximityLabel}`
+    if (key !== lastAnnouncementKeyRef.current) {
+      lastAnnouncementKeyRef.current = key
+      setAnnouncement(
+        `${turnInstruction}. About ${Math.max(0, rounded)} meters remaining. ${proximityLabel}.`,
+      )
+    }
+  }, [activeDestinationId, distanceMeters, turnInstruction, proximityLabel])
 
   const requestCameraPermission = async (): Promise<void> => {
     try {
@@ -266,6 +286,8 @@ function App() {
         {allPermissionsGranted && !activeDestinationId ? (
           <DestinationPicker
             destinations={destinations}
+            nodes={destinations}
+            edges={graph.edges}
             selectedId={selectedDestinationId}
             onSelect={setSelectedDestinationId}
             onStart={() => {
@@ -277,6 +299,7 @@ function App() {
               setArrivedNodeId(null)
               setNextWaypointName('Computing route...')
               setDistanceMeters(0)
+              setRoutePath(null)
               setRelativeBearing(0)
               setTurnInstruction('Go straight')
               setProximityLabel('Hold heading')
@@ -299,8 +322,18 @@ function App() {
             relativeBearing={relativeBearing}
             turnInstruction={turnInstruction}
             proximityLabel={proximityLabel}
+            nodes={destinations}
+            edges={graph.edges}
+            userPosition={position}
+            routePath={routePath}
+            destination={activeDestination}
+            arrivalRadiusMeters={ARRIVAL_RADIUS_METERS}
           />
         ) : null}
+
+        <div className="sr-only" role="status" aria-live="polite">
+          {announcement}
+        </div>
 
         {routeError ? <div className="error-banner">{routeError}</div> : null}
       </div>

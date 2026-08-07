@@ -27,6 +27,7 @@ export interface GraphEdge {
 export interface CampusGraph {
   nodes: Map<string, CampusNode>
   adjacency: Map<string, GraphEdge[]>
+  edges: Array<{ from: CampusNode; to: CampusNode }>
 }
 
 const typedCampusData: CampusDataShape = campusData
@@ -47,6 +48,7 @@ export const buildCampusGraph = (): CampusGraph => {
     typedCampusData.nodes.map((node) => [node.id, node]),
   )
   const adjacency = new Map<string, GraphEdge[]>()
+  const edges: Array<{ from: CampusNode; to: CampusNode }> = []
 
   for (const edge of typedCampusData.edges) {
     const from = nodes.get(edge.from)
@@ -57,9 +59,10 @@ export const buildCampusGraph = (): CampusGraph => {
     const cost = haversineDistance(from, to)
     addEdge(adjacency, edge.from, edge.to, cost)
     addEdge(adjacency, edge.to, edge.from, cost)
+    edges.push({ from, to })
   }
 
-  return { nodes, adjacency }
+  return { nodes, adjacency, edges }
 }
 
 export const getNearestNode = (

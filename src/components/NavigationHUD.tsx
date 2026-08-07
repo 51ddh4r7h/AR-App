@@ -1,3 +1,6 @@
+import type { GpsReading } from '../navigation/gps'
+import type { CampusNode } from '../navigation/graph'
+import { Minimap } from './Minimap'
 import { PrecisionCompass } from './PrecisionCompass'
 
 interface NavigationHUDProps {
@@ -11,6 +14,12 @@ interface NavigationHUDProps {
   relativeBearing: number
   turnInstruction: string
   proximityLabel: string
+  nodes: CampusNode[]
+  edges: Array<{ from: CampusNode; to: CampusNode }>
+  userPosition: GpsReading | null
+  routePath: CampusNode[] | null
+  destination: CampusNode
+  arrivalRadiusMeters: number
 }
 
 export function NavigationHUD({
@@ -24,6 +33,12 @@ export function NavigationHUD({
   relativeBearing,
   turnInstruction,
   proximityLabel,
+  nodes,
+  edges,
+  userPosition,
+  routePath,
+  destination,
+  arrivalRadiusMeters,
 }: NavigationHUDProps) {
   return (
     <>
@@ -31,6 +46,21 @@ export function NavigationHUD({
         <h2>{destinationName}</h2>
         <p>Next: {nextWaypointName}</p>
       </header>
+
+      <div className="minimap-panel">
+        <Minimap
+          nodes={nodes}
+          edges={edges}
+          userPosition={userPosition}
+          heading={heading}
+          routePath={routePath}
+          destination={destination}
+          arrivalRadiusMeters={arrivalRadiusMeters}
+          size={132}
+          showLabels={false}
+          ariaLabel={`Live map. ${distanceMeters.toFixed(0)} meters to ${destinationName}.`}
+        />
+      </div>
 
       <PrecisionCompass
         relativeBearing={relativeBearing}

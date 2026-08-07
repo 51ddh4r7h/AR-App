@@ -1,66 +1,57 @@
 {
   "nodes": [
     {
-      "id": "sidtm",
-      "name": "SIDTM",
-      "latitude": 18.537266,
-      "longitude": 73.73197,
-      "description": "Symbiosis Institute of Digital and Telecom Management.",
-      "openHours": "24 Hours",
-      "highlights": ["Main landmark", "Academic support"]
-    },
-    {
-      "id": "symbi-eats",
-      "name": "Symbi Eats",
-      "latitude": 18.537469822677274,
-      "longitude": 73.73228692972246,
-      "description": "Campus dining point.",
-      "openHours": "8 AM – 10 PM",
-      "highlights": ["Hot meals", "Snacks"]
-    },
-    {
-      "id": "library",
-      "name": "Library",
-      "latitude": 18.536904006835087,
-      "longitude": 73.73257205422341,
-      "description": "Quiet study zone with printing and Wi-Fi.",
+      "id": "library-entrance",
+      "name": "Library Entrance",
+      "latitude": 18.5368027,
+      "longitude": 73.7326191,
+      "description": "Main entrance to the campus library and quiet study zone.",
       "openHours": "9 AM – 8 PM",
       "highlights": ["Wi-Fi available", "Printing available"]
     },
     {
-      "id": "auditorium",
-      "name": "Auditorium",
-      "latitude": 18.53679933407802,
-      "longitude": 73.73255101708655,
-      "description": "Events, seminars and orientation sessions.",
+      "id": "mind-studio",
+      "name": "Mind Studio",
+      "latitude": 18.5370428,
+      "longitude": 73.7332691,
+      "description": "Design and innovation studio space on the campus.",
       "openHours": "9 AM – 7 PM",
-      "highlights": ["Stage", "AV system"]
+      "highlights": ["Workshop space", "Creative studio"]
     },
     {
-      "id": "fountain",
-      "name": "Fountain",
-      "latitude": 18.536238631339838,
-      "longitude": 73.7330154022884,
-      "description": "Central open-space landmark.",
+      "id": "hilltop-viewpoint",
+      "name": "Hilltop Viewpoint",
+      "latitude": 18.5357918,
+      "longitude": 73.7333646,
+      "description": "Panoramic viewpoint at the top of the hill.",
+      "openHours": "Open Area",
+      "highlights": ["Panoramic view", "Open lawn"]
+    },
+    {
+      "id": "blue-fountain",
+      "name": "Blue Fountain",
+      "latitude": 18.5361451,
+      "longitude": 73.7331103,
+      "description": "Central fountain landmark near the lawns.",
       "openHours": "Open Area",
       "highlights": ["Meet-up point", "Visible landmark"]
     },
     {
-      "id": "aqua-point",
-      "name": "Aqua Point",
-      "latitude": 18.53579473949669,
-      "longitude": 73.73335541761915,
-      "description": "Hydration/water point near student path.",
-      "openHours": "All day",
-      "highlights": ["Water access", "Quick stop"]
+      "id": "auditorium-lobby",
+      "name": "Auditorium Lobby",
+      "latitude": 18.5367206,
+      "longitude": 73.7324656,
+      "description": "Lobby entrance to the main auditorium.",
+      "openHours": "9 AM – 7 PM",
+      "highlights": ["Stage", "AV system"]
     }
   ],
   "edges": [
-    { "from": "sidtm", "to": "symbi-eats" },
-    { "from": "symbi-eats", "to": "library" },
-    { "from": "library", "to": "auditorium" },
-    { "from": "auditorium", "to": "fountain" },
-    { "from": "fountain", "to": "aqua-point" },
-    { "from": "library", "to": "fountain" }
+    { "from": "library-entrance", "to": "auditorium-lobby" },
+    { "from": "library-entrance", "to": "blue-fountain" },
+    { "from": "blue-fountain", "to": "hilltop-viewpoint" },
+    { "from": "blue-fountain", "to": "mind-studio" },
+    { "from": "mind-studio", "to": "hilltop-viewpoint" },
+    { "from": "auditorium-lobby", "to": "mind-studio" }
   ]
 }

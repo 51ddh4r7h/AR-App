@@ -93,7 +93,7 @@ export function PrecisionCompass({
           className="pf-needle"
           style={{ transform: `translate(-50%, -50%) rotate(${relativeBearing}deg)` }}
         >
-          <polygon points="60,8 79,72 66,72 66,152 54,152 54,72 41,72" fill={color} />
+          <polygon points="60,10 75,70 65,70 65,150 55,150 55,70 45,70" fill={color} />
         </svg>
         <div className="pf-hub">
           <span className="pf-distance">{Math.max(0, Math.round(distanceMeters))}</span>
