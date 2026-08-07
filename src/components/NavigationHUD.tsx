@@ -5,6 +5,7 @@ interface NavigationHUDProps {
   heading: number
   gpsAccuracy: number
   weakGps: boolean
+  routeMode: 'graph' | 'direct'
 }
 
 export function NavigationHUD({
@@ -14,6 +15,7 @@ export function NavigationHUD({
   heading,
   gpsAccuracy,
   weakGps,
+  routeMode,
 }: NavigationHUDProps) {
   return (
     <>
@@ -28,8 +30,10 @@ export function NavigationHUD({
         <p>GPS ±{Math.round(gpsAccuracy)}m</p>
       </footer>
 
+      {routeMode === 'direct' ? (
+        <div className="warning-banner">Graph path missing. Following direct bearing.</div>
+      ) : null}
       {weakGps ? <div className="warning-banner">GPS signal weak. Route may drift.</div> : null}
     </>
   )
 }
-

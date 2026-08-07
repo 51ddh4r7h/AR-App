@@ -18,17 +18,17 @@ interface ArrowVisual {
 const createArrowMesh = (): Group => {
   const group = new Group()
   const shaft = new Mesh(
-    new CylinderGeometry(0.08, 0.08, 0.55, 16),
-    new MeshStandardMaterial({ color: '#6ee7ff', emissive: '#1f7a8c', emissiveIntensity: 0.4 }),
+    new CylinderGeometry(0.14, 0.14, 0.95, 20),
+    new MeshStandardMaterial({ color: '#f8fafc', emissive: '#0284c7', emissiveIntensity: 0.85 }),
   )
-  shaft.position.y = 0.28
+  shaft.position.y = 0.5
   group.add(shaft)
 
   const head = new Mesh(
-    new ConeGeometry(0.18, 0.4, 20),
-    new MeshStandardMaterial({ color: '#22d3ee', emissive: '#0e7490', emissiveIntensity: 0.5 }),
+    new ConeGeometry(0.28, 0.62, 24),
+    new MeshStandardMaterial({ color: '#22d3ee', emissive: '#0e7490', emissiveIntensity: 0.8 }),
   )
-  head.position.y = 0.75
+  head.position.y = 1.18
   group.add(head)
 
   group.rotation.x = Math.PI / 18
@@ -69,11 +69,10 @@ export const tickArrows = (arrows: ArrowVisual[]): void => {
       continue
     }
     arrow.group.position.x = lerp(arrow.group.position.x, arrow.targetX, 0.14)
-    arrow.group.position.y = lerp(arrow.group.position.y, 0, 0.18)
+    arrow.group.position.y = lerp(arrow.group.position.y, 0.12, 0.18)
     arrow.group.position.z = lerp(arrow.group.position.z, arrow.targetZ, 0.14)
     arrow.group.rotation.y = lerp(arrow.group.rotation.y, arrow.targetRotationY, 0.16)
   }
 }
 
 export type { ArrowVisual }
-

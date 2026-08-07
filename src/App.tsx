@@ -10,6 +10,7 @@ import { buildCampusGraph } from './navigation/graph'
 import { GpsService, type GpsReading } from './navigation/gps'
 import { HeadingService } from './navigation/heading'
 import { buildRoute } from './navigation/route'
+import { bearingBetween, haversineDistance } from './utils/geo'
 import { normalizeAngle } from './utils/math'
 
 const REACHED_THRESHOLD_METERS = 14
@@ -28,6 +29,7 @@ function App() {
   const [heading, setHeading] = useState(0)
   const [nextWaypointName, setNextWaypointName] = useState('Waiting for route...')
   const [distanceMeters, setDistanceMeters] = useState(0)
+  const [routeMode, setRouteMode] = useState<'graph' | 'direct'>('graph')
   const [routeError, setRouteError] = useState<string | null>(null)
   const [arrivedNodeId, setArrivedNodeId] = useState<string | null>(null)
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null)
@@ -76,33 +78,36 @@ function App() {
     if (!allPermissionsGranted || !activeDestinationId || !position) {
       return
     }
-    const timer = window.setInterval(() => {
-      const route = buildRoute(graph, position, activeDestinationId)
-      if (!route) {
-        setRouteError('No path found. Move closer to campus paths and retry.')
-        arRendererRef.current?.clearNavigation()
-        return
-      }
+    const destination = graph.nodes.get(activeDestinationId)
+    if (!destination) {
+      setRouteError('Selected destination is unavailable. Please reselect.')
+      return
+    }
 
+    const route = buildRoute(graph, position, activeDestinationId)
+    const distanceToDestination = haversineDistance(position, destination)
+    const nextBearing = route?.nextBearing ?? bearingBetween(position, destination)
+    const nextName = route?.nextNode?.name ?? destination.name
+
+    setDistanceMeters(distanceToDestination)
+    setNextWaypointName(nextName)
+    setRouteMode(route ? 'graph' : 'direct')
+
+    if (!route) {
+      setRouteError('Graph path unavailable. Using direct guidance.')
+    } else {
       setRouteError(null)
-      setDistanceMeters(route.destinationDistance)
-      setNextWaypointName(route.nextNode?.name ?? route.path[route.path.length - 1].name)
+    }
 
-      if (route.destinationDistance <= REACHED_THRESHOLD_METERS) {
-        setArrivedNodeId(activeDestinationId)
-        setActiveDestinationId(null)
-        arRendererRef.current?.clearNavigation()
-        return
-      }
+    if (distanceToDestination <= REACHED_THRESHOLD_METERS) {
+      setArrivedNodeId(activeDestinationId)
+      setActiveDestinationId(null)
+      arRendererRef.current?.clearNavigation()
+      return
+    }
 
-      const relativeBearing = normalizeAngle(route.nextBearing - heading)
-      arRendererRef.current?.setNavigationDirection(
-        relativeBearing,
-        route.destinationDistance,
-      )
-    }, 1000)
-
-    return () => window.clearInterval(timer)
+    const relativeBearing = normalizeAngle(nextBearing - heading)
+    arRendererRef.current?.setNavigationDirection(relativeBearing, distanceToDestination)
   }, [activeDestinationId, allPermissionsGranted, graph, heading, position])
 
   const requestCameraPermission = async (): Promise<void> => {
@@ -220,6 +225,9 @@ function App() {
               }
               setActiveDestinationId(selectedDestinationId)
               setArrivedNodeId(null)
+              setNextWaypointName('Computing route...')
+              setDistanceMeters(0)
+              setRouteMode('graph')
               setRouteError(null)
             }}
           />
@@ -233,6 +241,7 @@ function App() {
             heading={heading}
             gpsAccuracy={position?.accuracy ?? 0}
             weakGps={weakGps}
+            routeMode={routeMode}
           />
         ) : null}
 
@@ -253,4 +262,3 @@ function App() {
 }
 
 export default App
-
